@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ENTRY_FILE=./src/skjemaDemo.html node server-dev.js",
+    "start2": "ENTRY_FILE=./src/Oppgave2/oppgave2.html node server-dev.js",
     "build": "parcel build src/skjemaDemo.html --public-url /cv-samtale/static"
   },
   "keywords": [],
