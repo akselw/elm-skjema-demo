@@ -1,7 +1,5 @@
 module SkjemaDemo exposing (..)
 
-import Api
-import ArbeidserfaringSkjema as Skjema exposing (ArbeidserfaringSkjema)
 import Browser
 import Dato exposing (Måned(..))
 import FrontendModuler.Checkbox as Checkbox
@@ -11,7 +9,6 @@ import FrontendModuler.Knapp as Knapp
 import FrontendModuler.Textarea as Textarea
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Http
 
 
 
@@ -22,78 +19,37 @@ type Model
     = Model { skjema : ArbeidserfaringSkjema }
 
 
+type alias ArbeidserfaringSkjema =
+    { arbeidsoppgaver : String
+    }
+
+
 
 --- UPDATE ---
 
 
 type Msg
-    = LagreKnappTrykket
-    | StillingOppdatert String
-    | ArbeidsoppgaverOppdatert String
-    | FraMånedOppdatert String
-    | FraÅrOppdatert String
-    | TilMånedOppdatert String
-    | TilÅrOppdatert String
-    | NåværendeToggled
-    | StillingFeltMistetFokus
-    | FraÅrFeltMistetFokus
-    | TilÅrFeltMistetFokus
-    | ArbeidserfaringLagret (Result Http.Error ())
+    = ArbeidsoppgaverOppdatert String
+    | Tekstmelding String
+    | NoeSkjedde
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg (Model model) =
     case msg of
-        StillingOppdatert stilling ->
-            ( Model { model | skjema = Skjema.oppdaterStilling stilling model.skjema }, Cmd.none )
+        ArbeidsoppgaverOppdatert stilling ->
+            ( Model { model | skjema = oppdaterStilling stilling model.skjema }, Cmd.none )
 
-        ArbeidsoppgaverOppdatert arbeidsoppgaver ->
-            ( Model { model | skjema = Skjema.oppdaterArbeidsoppgaver arbeidsoppgaver model.skjema }, Cmd.none )
-
-        FraMånedOppdatert fraMånedString ->
-            case Dato.stringTilMaybeMåned fraMånedString of
-                Just måned ->
-                    ( Model { model | skjema = Skjema.oppdaterFraMåned måned model.skjema }, Cmd.none )
-
-                Nothing ->
-                    ( Model model, Cmd.none )
-
-        FraÅrOppdatert fraÅr ->
-            ( Model { model | skjema = Skjema.oppdaterFraÅr fraÅr model.skjema }, Cmd.none )
-
-        TilMånedOppdatert tilMånedString ->
-            case Dato.stringTilMaybeMåned tilMånedString of
-                Just måned ->
-                    ( Model { model | skjema = Skjema.oppdaterTilMåned måned model.skjema }, Cmd.none )
-
-                Nothing ->
-                    ( Model model, Cmd.none )
-
-        TilÅrOppdatert tilÅr ->
-            ( Model { model | skjema = Skjema.oppdaterTilÅr tilÅr model.skjema }, Cmd.none )
-
-        NåværendeToggled ->
-            ( Model { model | skjema = Skjema.toggleNåværende model.skjema }, Cmd.none )
-
-        StillingFeltMistetFokus ->
-            ( Model { model | skjema = Skjema.visFeilmeldingStilling model.skjema }, Cmd.none )
-
-        FraÅrFeltMistetFokus ->
-            ( Model { model | skjema = Skjema.visFeilmeldingFraÅr model.skjema }, Cmd.none )
-
-        TilÅrFeltMistetFokus ->
-            ( Model { model | skjema = Skjema.visFeilmeldingTilÅr model.skjema }, Cmd.none )
-
-        LagreKnappTrykket ->
-            case Skjema.valider model.skjema of
-                Just validertSkjema ->
-                    ( Model model, Api.lagreArbeidserfaring ArbeidserfaringLagret validertSkjema )
-
-                Nothing ->
-                    ( Model { model | skjema = Skjema.visAlleFeilmeldinger model.skjema }, Cmd.none )
-
-        ArbeidserfaringLagret result ->
+        Tekstmelding string ->
             ( Model model, Cmd.none )
+
+        NoeSkjedde ->
+            ( Model model, Cmd.none )
+
+
+oppdaterStilling : String -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+oppdaterStilling stilling skjema =
+    { skjema | arbeidsoppgaver = stilling }
 
 
 
@@ -116,49 +72,32 @@ viewSkjema : ArbeidserfaringSkjema -> Html Msg
 viewSkjema skjema =
     div []
         [ h1 [] [ text "Arbeidserfaring" ]
-        , skjema
-            |> Skjema.stilling
-            |> Input.input { msg = StillingOppdatert, label = "Stilling/yrke" }
-            |> Input.withErObligatorisk
-            |> Input.withOnBlur StillingFeltMistetFokus
-            |> Input.withFeilmelding (Skjema.feilmeldingStilling skjema)
+        , Input.input { msg = Tekstmelding, label = "Stilling/yrke" } ""
             |> Input.toHtml
-        , skjema
-            |> Skjema.arbeidsoppgaver
-            |> Textarea.textarea { msg = ArbeidsoppgaverOppdatert, label = "Arbeidsoppgaver" }
-            |> Textarea.toHtml
+
+        -- TODO: Her skal det være et textarea med label "Arbeidsoppgaver" som lar der oppdatere arbeidsoppgave-feltet i skjemaet
         , div [ class "datoinputrad" ]
             [ DatoInput.datoInput
                 { label = "Når startet du i jobben?"
-                , onMånedChange = FraMånedOppdatert
-                , måned = Skjema.fraMåned skjema
-                , onÅrChange = FraÅrOppdatert
-                , år = Skjema.fraÅr skjema
+                , onMånedChange = Tekstmelding
+                , måned = Januar
+                , onÅrChange = Tekstmelding
+                , år = ""
                 }
-                |> DatoInput.withOnBlurÅr FraÅrFeltMistetFokus
-                |> DatoInput.withFeilmeldingÅr (Skjema.feilmeldingFraÅr skjema)
                 |> DatoInput.toHtml
-            , if Skjema.nåværende skjema then
-                text ""
-
-              else
-                DatoInput.datoInput
-                    { label = "Når sluttet du i jobben?"
-                    , onMånedChange = TilMånedOppdatert
-                    , måned = Skjema.tilMåned skjema
-                    , onÅrChange = TilÅrOppdatert
-                    , år = Skjema.tilÅr skjema
-                    }
-                    |> DatoInput.withOnBlurÅr TilÅrFeltMistetFokus
-                    |> DatoInput.withFeilmeldingÅr (Skjema.feilmeldingTilÅr skjema)
-                    |> DatoInput.toHtml
+            , DatoInput.datoInput
+                { label = "Når sluttet du i jobben?"
+                , onMånedChange = Tekstmelding
+                , måned = Januar
+                , onÅrChange = Tekstmelding
+                , år = ""
+                }
+                |> DatoInput.toHtml
             ]
-        , skjema
-            |> Skjema.nåværende
-            |> Checkbox.checkbox "Jeg jobber fremdeles her" NåværendeToggled
+        , Checkbox.checkbox "Jeg jobber fremdeles her" NoeSkjedde True
             |> Checkbox.withClass "blokk-m"
             |> Checkbox.toHtml
-        , Knapp.knapp LagreKnappTrykket "Lagre arbeidserfaring"
+        , Knapp.knapp NoeSkjedde "Lagre arbeidserfaring"
             |> Knapp.toHtml
         ]
 
@@ -178,4 +117,4 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model { skjema = Skjema.init }, Cmd.none )
+    ( Model { skjema = { arbeidsoppgaver = "" } }, Cmd.none )
