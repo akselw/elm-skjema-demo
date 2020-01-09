@@ -74,8 +74,8 @@ viewSkjema skjema =
         [ h1 [] [ text "Arbeidserfaring" ]
         , Input.input { msg = Tekstmelding, label = "Stilling/yrke" } ""
             |> Input.toHtml
-
-        -- TODO: Her skal det være et textarea med label "Arbeidsoppgaver" som lar der oppdatere arbeidsoppgave-feltet i skjemaet
+        , Textarea.textarea { label = "Arbeidsoppgaver", msg = ArbeidsoppgaverOppdatert } skjema.arbeidsoppgaver
+            |> Textarea.toHtml
         , div [ class "datoinputrad" ]
             [ DatoInput.datoInput
                 { label = "Når startet du i jobben?"
