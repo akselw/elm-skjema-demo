@@ -33,6 +33,9 @@ type Msg
     | TilMånedOppdatert String
     | TilÅrOppdatert String
     | NåværendeToggled
+    | StillingFeltMistetFokus
+    | FraÅrFeltMistetFokus
+    | TilÅrFeltMistetFokus
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -72,6 +75,15 @@ update msg (Model model) =
         NåværendeToggled ->
             ( Model { model | skjema = Skjema.toggleNåværende model.skjema }, Cmd.none )
 
+        StillingFeltMistetFokus ->
+            ( Model { model | skjema = Skjema.visFeilmeldingStilling model.skjema }, Cmd.none )
+
+        FraÅrFeltMistetFokus ->
+            ( Model { model | skjema = Skjema.visFeilmeldingFraÅr model.skjema }, Cmd.none )
+
+        TilÅrFeltMistetFokus ->
+            ( Model { model | skjema = Skjema.visFeilmeldingTilÅr model.skjema }, Cmd.none )
+
 
 
 --- VIEW ---
@@ -97,6 +109,7 @@ viewSkjema skjema =
             |> Skjema.stilling
             |> Input.input { msg = StillingOppdatert, label = "Stilling/yrke" }
             |> Input.withErObligatorisk
+            |> Input.withOnBlur StillingFeltMistetFokus
             |> Input.withFeilmelding (Skjema.feilmeldingStilling skjema)
             |> Input.toHtml
         , skjema
@@ -111,6 +124,7 @@ viewSkjema skjema =
                 , onÅrChange = FraÅrOppdatert
                 , år = Skjema.fraÅr skjema
                 }
+                |> DatoInput.withOnBlurÅr FraÅrFeltMistetFokus
                 |> DatoInput.withFeilmeldingÅr (Skjema.feilmeldingFraÅr skjema)
                 |> DatoInput.toHtml
             , if Skjema.nåværende skjema then
@@ -124,6 +138,7 @@ viewSkjema skjema =
                     , onÅrChange = TilÅrOppdatert
                     , år = Skjema.tilÅr skjema
                     }
+                    |> DatoInput.withOnBlurÅr TilÅrFeltMistetFokus
                     |> DatoInput.withFeilmeldingÅr (Skjema.feilmeldingTilÅr skjema)
                     |> DatoInput.toHtml
             ]

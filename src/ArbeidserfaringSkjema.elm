@@ -18,6 +18,9 @@ module ArbeidserfaringSkjema exposing
     , tilMåned
     , tilÅr
     , toggleNåværende
+    , visFeilmeldingFraÅr
+    , visFeilmeldingStilling
+    , visFeilmeldingTilÅr
     )
 
 import Dato exposing (Måned(..))
@@ -32,6 +35,9 @@ type ArbeidserfaringSkjema
         , tilMåned : Måned
         , tilÅr : String
         , nåværende : Bool
+        , visFeilmeldingStilling : Bool
+        , visFeilmeldingFraÅr : Bool
+        , visFeilmeldingTilÅr : Bool
         }
 
 
@@ -49,6 +55,9 @@ init =
         , tilMåned = Januar
         , tilÅr = ""
         , nåværende = False
+        , visFeilmeldingStilling = False
+        , visFeilmeldingFraÅr = False
+        , visFeilmeldingTilÅr = False
         }
 
 
@@ -136,7 +145,16 @@ toggleNåværende (ArbeidserfaringSkjema skjema) =
 
 feilmeldingStilling : ArbeidserfaringSkjema -> Maybe String
 feilmeldingStilling (ArbeidserfaringSkjema skjema) =
-    if (String.trim >> String.isEmpty) skjema.stilling then
+    if skjema.visFeilmeldingStilling then
+        feilmeldingStillingTekst skjema.stilling
+
+    else
+        Nothing
+
+
+feilmeldingStillingTekst : String -> Maybe String
+feilmeldingStillingTekst stilling_ =
+    if (String.trim >> String.isEmpty) stilling_ then
         Just "Vennligst full ut stilling"
 
     else
@@ -145,9 +163,32 @@ feilmeldingStilling (ArbeidserfaringSkjema skjema) =
 
 feilmeldingFraÅr : ArbeidserfaringSkjema -> Maybe String
 feilmeldingFraÅr (ArbeidserfaringSkjema skjema) =
-    Dato.feilmeldingÅr skjema.fraÅr
+    if skjema.visFeilmeldingFraÅr then
+        Dato.feilmeldingÅr skjema.fraÅr
+
+    else
+        Nothing
 
 
 feilmeldingTilÅr : ArbeidserfaringSkjema -> Maybe String
 feilmeldingTilÅr (ArbeidserfaringSkjema skjema) =
-    Dato.feilmeldingÅr skjema.tilÅr
+    if skjema.visFeilmeldingTilÅr then
+        Dato.feilmeldingÅr skjema.tilÅr
+
+    else
+        Nothing
+
+
+visFeilmeldingStilling : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+visFeilmeldingStilling (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | visFeilmeldingStilling = True }
+
+
+visFeilmeldingFraÅr : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+visFeilmeldingFraÅr (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | visFeilmeldingFraÅr = True }
+
+
+visFeilmeldingTilÅr : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+visFeilmeldingTilÅr (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | visFeilmeldingTilÅr = True }
