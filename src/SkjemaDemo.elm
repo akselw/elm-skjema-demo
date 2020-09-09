@@ -1,5 +1,6 @@
 module SkjemaDemo exposing (..)
 
+import Api
 import ArbeidserfaringSkjema as Skjema exposing (ArbeidserfaringSkjema)
 import Browser
 import Dato
@@ -10,6 +11,7 @@ import FrontendModuler.Knapp as Knapp
 import FrontendModuler.Textarea as Textarea
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Http
 
 
 
@@ -36,6 +38,7 @@ type Msg
     | StillingFeltMistetFokus
     | FraÅrFeltMistetFokus
     | TilÅrFeltMistetFokus
+    | ArbeidserfaringLagret (Result Http.Error ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -84,11 +87,13 @@ update msg (Model model) =
         LagreKnappTrykket ->
             case Skjema.valider model.skjema of
                 Just validertSkjema ->
-                    --- Her skal vi lagre
-                    ( Model model, Cmd.none )
+                    ( Model model, Api.lagreArbeidserfaring ArbeidserfaringLagret validertSkjema )
 
                 Nothing ->
                     ( Model model, Cmd.none )
+
+        ArbeidserfaringLagret result ->
+            ( Model model, Cmd.none )
 
 
 

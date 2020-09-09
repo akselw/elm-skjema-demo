@@ -26,6 +26,7 @@ module ArbeidserfaringSkjema exposing
     )
 
 import Dato exposing (Måned(..), TilDato(..), År)
+import Json.Encode
 
 
 type ArbeidserfaringSkjema
@@ -255,3 +256,32 @@ initValidertSkjema (ArbeidserfaringSkjema uvalidert) fraÅr_ sluttDato =
             else
                 Just uvalidert.arbeidsoppgaver
         }
+
+
+
+--- ENCODE ---
+
+
+encode : ValidertArbeidserfaringSkjema -> Json.Encode.Value
+encode (ValidertArbeidserfaringSkjema skjema) =
+    [ [ ( "stilling", Json.Encode.string skjema.stilling )
+      , ( "beskrivelse"
+        , skjema.arbeidsoppgaver
+            |> Maybe.map Json.Encode.string
+            |> Maybe.withDefault Json.Encode.null
+        )
+      , ( "fraDato", Dato.encodeMonthYear skjema.fraMåned skjema.fraÅr )
+      ]
+    , case skjema.tilDato of
+        Nåværende ->
+            [ ( "nåværende", Json.Encode.bool True )
+            , ( "tilDato", Json.Encode.null )
+            ]
+
+        Avsluttet måned år ->
+            [ ( "nåværende", Json.Encode.bool False )
+            , ( "tilDato", Dato.encodeMonthYear måned år )
+            ]
+    ]
+        |> List.concat
+        |> Json.Encode.object
