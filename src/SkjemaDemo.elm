@@ -90,7 +90,7 @@ update msg (Model model) =
                     ( Model model, Api.lagreArbeidserfaring ArbeidserfaringLagret validertSkjema )
 
                 Nothing ->
-                    ( Model model, Cmd.none )
+                    ( Model { model | skjema = Skjema.visAlleFeilmeldinger model.skjema }, Cmd.none )
 
         ArbeidserfaringLagret result ->
             ( Model model, Cmd.none )

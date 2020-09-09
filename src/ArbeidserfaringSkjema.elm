@@ -20,6 +20,7 @@ module ArbeidserfaringSkjema exposing
     , tilÅr
     , toggleNåværende
     , valider
+    , visAlleFeilmeldinger
     , visFeilmeldingFraÅr
     , visFeilmeldingStilling
     , visFeilmeldingTilÅr
@@ -195,6 +196,14 @@ visFeilmeldingFraÅr (ArbeidserfaringSkjema skjema) =
 visFeilmeldingTilÅr : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
 visFeilmeldingTilÅr (ArbeidserfaringSkjema skjema) =
     ArbeidserfaringSkjema { skjema | visFeilmeldingTilÅr = True }
+
+
+visAlleFeilmeldinger : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+visAlleFeilmeldinger skjema =
+    skjema
+        |> visFeilmeldingStilling
+        |> visFeilmeldingFraÅr
+        |> visFeilmeldingTilÅr
 
 
 
