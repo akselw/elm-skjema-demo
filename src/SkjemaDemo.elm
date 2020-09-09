@@ -2,6 +2,7 @@ module SkjemaDemo exposing (..)
 
 import ArbeidserfaringSkjema as Skjema exposing (ArbeidserfaringSkjema)
 import Browser
+import Dato
 import FrontendModuler.Checkbox as Checkbox
 import FrontendModuler.DatoInput as DatoInput
 import FrontendModuler.Input as Input
@@ -24,18 +25,52 @@ type Model
 
 
 type Msg
-    = Tekstmelding String
-    | NoeSkjedde
+    = NoeSkjedde
+    | StillingOppdatert String
+    | ArbeidsoppgaverOppdatert String
+    | FraMånedOppdatert String
+    | FraÅrOppdatert String
+    | TilMånedOppdatert String
+    | TilÅrOppdatert String
+    | NåværendeToggled
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg (Model model) =
     case msg of
-        Tekstmelding string ->
-            ( Model model, Cmd.none )
-
         NoeSkjedde ->
             ( Model model, Cmd.none )
+
+        StillingOppdatert stilling ->
+            ( Model { model | skjema = Skjema.oppdaterStilling stilling model.skjema }, Cmd.none )
+
+        ArbeidsoppgaverOppdatert arbeidsoppgaver ->
+            ( Model { model | skjema = Skjema.oppdaterArbeidsoppgaver arbeidsoppgaver model.skjema }, Cmd.none )
+
+        FraMånedOppdatert fraMånedString ->
+            case Dato.stringTilMaybeMåned fraMånedString of
+                Just fraMåned ->
+                    ( Model { model | skjema = Skjema.oppdaterFraMåned fraMåned model.skjema }, Cmd.none )
+
+                Nothing ->
+                    ( Model model, Cmd.none )
+
+        FraÅrOppdatert fraÅr ->
+            ( Model { model | skjema = Skjema.oppdaterFraÅr fraÅr model.skjema }, Cmd.none )
+
+        TilMånedOppdatert tilMånedString ->
+            case Dato.stringTilMaybeMåned tilMånedString of
+                Just tilMåned ->
+                    ( Model { model | skjema = Skjema.oppdaterTilMåned tilMåned model.skjema }, Cmd.none )
+
+                Nothing ->
+                    ( Model model, Cmd.none )
+
+        TilÅrOppdatert tilÅr ->
+            ( Model { model | skjema = Skjema.oppdaterTilÅr tilÅr model.skjema }, Cmd.none )
+
+        NåværendeToggled ->
+            ( Model { model | skjema = Skjema.toggleNåværende model.skjema }, Cmd.none )
 
 
 
@@ -60,33 +95,33 @@ viewSkjema skjema =
         [ h1 [] [ text "Arbeidserfaring" ]
         , skjema
             |> Skjema.stilling
-            |> Input.input { msg = Tekstmelding, label = "Stilling/yrke" }
+            |> Input.input { msg = StillingOppdatert, label = "Stilling/yrke" }
             |> Input.toHtml
         , skjema
             |> Skjema.arbeidsoppgaver
-            |> Textarea.textarea { msg = Tekstmelding, label = "Arbeidsoppgaver" }
+            |> Textarea.textarea { msg = ArbeidsoppgaverOppdatert, label = "Arbeidsoppgaver" }
             |> Textarea.toHtml
         , div [ class "datoinputrad" ]
             [ DatoInput.datoInput
                 { label = "Når startet du i jobben?"
-                , onMånedChange = Tekstmelding
+                , onMånedChange = FraMånedOppdatert
                 , måned = Skjema.fraMåned skjema
-                , onÅrChange = Tekstmelding
+                , onÅrChange = FraÅrOppdatert
                 , år = Skjema.fraÅr skjema
                 }
                 |> DatoInput.toHtml
             , DatoInput.datoInput
                 { label = "Når sluttet du i jobben?"
-                , onMånedChange = Tekstmelding
+                , onMånedChange = TilMånedOppdatert
                 , måned = Skjema.tilMåned skjema
-                , onÅrChange = Tekstmelding
+                , onÅrChange = TilÅrOppdatert
                 , år = Skjema.tilÅr skjema
                 }
                 |> DatoInput.toHtml
             ]
         , skjema
             |> Skjema.nåværende
-            |> Checkbox.checkbox "Jeg jobber fremdeles her" NoeSkjedde
+            |> Checkbox.checkbox "Jeg jobber fremdeles her" NåværendeToggled
             |> Checkbox.withClass "blokk-m"
             |> Checkbox.toHtml
         , Knapp.knapp NoeSkjedde "Lagre arbeidserfaring"

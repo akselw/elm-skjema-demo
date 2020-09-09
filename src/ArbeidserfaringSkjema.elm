@@ -5,9 +5,16 @@ module ArbeidserfaringSkjema exposing
     , fraÅr
     , init
     , nåværende
+    , oppdaterArbeidsoppgaver
+    , oppdaterFraMåned
+    , oppdaterFraÅr
+    , oppdaterStilling
+    , oppdaterTilMåned
+    , oppdaterTilÅr
     , stilling
     , tilMåned
     , tilÅr
+    , toggleNåværende
     )
 
 import Dato exposing (Måned(..))
@@ -23,6 +30,27 @@ type ArbeidserfaringSkjema
         , tilÅr : String
         , nåværende : Bool
         }
+
+
+
+--- INIT ---
+
+
+init : ArbeidserfaringSkjema
+init =
+    ArbeidserfaringSkjema
+        { stilling = ""
+        , arbeidsoppgaver = ""
+        , fraMåned = Januar
+        , fraÅr = ""
+        , tilMåned = Januar
+        , tilÅr = ""
+        , nåværende = False
+        }
+
+
+
+--- INNHOLD ---
 
 
 stilling : ArbeidserfaringSkjema -> String
@@ -60,14 +88,40 @@ nåværende (ArbeidserfaringSkjema skjema) =
     skjema.nåværende
 
 
-init : ArbeidserfaringSkjema
-init =
-    ArbeidserfaringSkjema
-        { stilling = ""
-        , arbeidsoppgaver = ""
-        , fraMåned = Januar
-        , fraÅr = ""
-        , tilMåned = Januar
-        , tilÅr = ""
-        , nåværende = False
-        }
+
+--- OPPDATERING ---
+
+
+oppdaterStilling : String -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+oppdaterStilling stilling_ (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | stilling = stilling_ }
+
+
+oppdaterArbeidsoppgaver : String -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+oppdaterArbeidsoppgaver arbeidsoppgaver_ (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | arbeidsoppgaver = arbeidsoppgaver_ }
+
+
+oppdaterFraMåned : Måned -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+oppdaterFraMåned fraMåned_ (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | fraMåned = fraMåned_ }
+
+
+oppdaterFraÅr : String -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+oppdaterFraÅr fraÅr_ (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | fraÅr = fraÅr_ }
+
+
+oppdaterTilMåned : Måned -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+oppdaterTilMåned tilMåned_ (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | tilMåned = tilMåned_ }
+
+
+oppdaterTilÅr : String -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+oppdaterTilÅr tilÅr_ (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | tilÅr = tilÅr_ }
+
+
+toggleNåværende : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
+toggleNåværende (ArbeidserfaringSkjema skjema) =
+    ArbeidserfaringSkjema { skjema | nåværende = not skjema.nåværende }
