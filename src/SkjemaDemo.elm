@@ -1,7 +1,7 @@
 module SkjemaDemo exposing (..)
 
+import ArbeidserfaringSkjema as Skjema exposing (ArbeidserfaringSkjema)
 import Browser
-import Dato exposing (Måned(..))
 import FrontendModuler.Checkbox as Checkbox
 import FrontendModuler.DatoInput as DatoInput
 import FrontendModuler.Input as Input
@@ -17,10 +17,6 @@ import Html.Attributes exposing (..)
 
 type Model
     = Model { skjema : ArbeidserfaringSkjema }
-
-
-type alias ArbeidserfaringSkjema =
-    {}
 
 
 
@@ -62,29 +58,35 @@ viewSkjema : ArbeidserfaringSkjema -> Html Msg
 viewSkjema skjema =
     div []
         [ h1 [] [ text "Arbeidserfaring" ]
-        , Input.input { msg = Tekstmelding, label = "Stilling/yrke" } ""
+        , skjema
+            |> Skjema.stilling
+            |> Input.input { msg = Tekstmelding, label = "Stilling/yrke" }
             |> Input.toHtml
-        , Textarea.textarea { msg = Tekstmelding, label = "Arbeidsoppgaver" } ""
+        , skjema
+            |> Skjema.arbeidsoppgaver
+            |> Textarea.textarea { msg = Tekstmelding, label = "Arbeidsoppgaver" }
             |> Textarea.toHtml
         , div [ class "datoinputrad" ]
             [ DatoInput.datoInput
                 { label = "Når startet du i jobben?"
                 , onMånedChange = Tekstmelding
-                , måned = Januar
+                , måned = Skjema.fraMåned skjema
                 , onÅrChange = Tekstmelding
-                , år = ""
+                , år = Skjema.fraÅr skjema
                 }
                 |> DatoInput.toHtml
             , DatoInput.datoInput
                 { label = "Når sluttet du i jobben?"
                 , onMånedChange = Tekstmelding
-                , måned = Januar
+                , måned = Skjema.tilMåned skjema
                 , onÅrChange = Tekstmelding
-                , år = ""
+                , år = Skjema.tilÅr skjema
                 }
                 |> DatoInput.toHtml
             ]
-        , Checkbox.checkbox "Jeg jobber fremdeles her" NoeSkjedde True
+        , skjema
+            |> Skjema.nåværende
+            |> Checkbox.checkbox "Jeg jobber fremdeles her" NoeSkjedde
             |> Checkbox.withClass "blokk-m"
             |> Checkbox.toHtml
         , Knapp.knapp NoeSkjedde "Lagre arbeidserfaring"
@@ -107,4 +109,4 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model { skjema = {} }, Cmd.none )
+    ( Model { skjema = Skjema.init }, Cmd.none )
