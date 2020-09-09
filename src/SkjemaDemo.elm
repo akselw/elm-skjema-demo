@@ -25,7 +25,7 @@ type Model
 
 
 type Msg
-    = NoeSkjedde
+    = LagreKnappTrykket
     | StillingOppdatert String
     | ArbeidsoppgaverOppdatert String
     | FraMånedOppdatert String
@@ -41,9 +41,6 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg (Model model) =
     case msg of
-        NoeSkjedde ->
-            ( Model model, Cmd.none )
-
         StillingOppdatert stilling ->
             ( Model { model | skjema = Skjema.oppdaterStilling stilling model.skjema }, Cmd.none )
 
@@ -83,6 +80,15 @@ update msg (Model model) =
 
         TilÅrFeltMistetFokus ->
             ( Model { model | skjema = Skjema.visFeilmeldingTilÅr model.skjema }, Cmd.none )
+
+        LagreKnappTrykket ->
+            case Skjema.valider model.skjema of
+                Just validertSkjema ->
+                    --- Her skal vi lagre
+                    ( Model model, Cmd.none )
+
+                Nothing ->
+                    ( Model model, Cmd.none )
 
 
 
@@ -147,7 +153,7 @@ viewSkjema skjema =
             |> Checkbox.checkbox "Jeg jobber fremdeles her" NåværendeToggled
             |> Checkbox.withClass "blokk-m"
             |> Checkbox.toHtml
-        , Knapp.knapp NoeSkjedde "Lagre arbeidserfaring"
+        , Knapp.knapp LagreKnappTrykket "Lagre arbeidserfaring"
             |> Knapp.toHtml
         ]
 

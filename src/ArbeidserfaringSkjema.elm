@@ -1,5 +1,6 @@
 module ArbeidserfaringSkjema exposing
     ( ArbeidserfaringSkjema
+    , ValidertArbeidserfaringSkjema
     , arbeidsoppgaver
     , feilmeldingFraÅr
     , feilmeldingStilling
@@ -18,12 +19,13 @@ module ArbeidserfaringSkjema exposing
     , tilMåned
     , tilÅr
     , toggleNåværende
+    , valider
     , visFeilmeldingFraÅr
     , visFeilmeldingStilling
     , visFeilmeldingTilÅr
     )
 
-import Dato exposing (Måned(..))
+import Dato exposing (Måned(..), TilDato(..), År)
 
 
 type ArbeidserfaringSkjema
@@ -192,3 +194,64 @@ visFeilmeldingFraÅr (ArbeidserfaringSkjema skjema) =
 visFeilmeldingTilÅr : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
 visFeilmeldingTilÅr (ArbeidserfaringSkjema skjema) =
     ArbeidserfaringSkjema { skjema | visFeilmeldingTilÅr = True }
+
+
+
+--- VALIDERING ---
+
+
+type ValidertArbeidserfaringSkjema
+    = ValidertArbeidserfaringSkjema
+        { stilling : String
+        , arbeidsoppgaver : Maybe String
+        , fraMåned : Måned
+        , fraÅr : År
+        , tilDato : SluttDato
+        }
+
+
+type SluttDato
+    = Nåværende
+    | Avsluttet Måned År
+
+
+valider : ArbeidserfaringSkjema -> Maybe ValidertArbeidserfaringSkjema
+valider ((ArbeidserfaringSkjema skjema) as uvalidertSkjema) =
+    if feilmeldingStillingTekst skjema.stilling /= Nothing then
+        Nothing
+
+    else
+        Maybe.map2 (initValidertSkjema uvalidertSkjema)
+            (Dato.stringTilÅr skjema.fraÅr)
+            (validerTilDato
+                skjema.nåværende
+                skjema.tilMåned
+                skjema.tilÅr
+            )
+
+
+validerTilDato : Bool -> Måned -> String -> Maybe SluttDato
+validerTilDato nåværende_ tilMåned_ tilÅr_ =
+    if nåværende_ then
+        Just Nåværende
+
+    else
+        tilÅr_
+            |> Dato.stringTilÅr
+            |> Maybe.map (Avsluttet tilMåned_)
+
+
+initValidertSkjema : ArbeidserfaringSkjema -> År -> SluttDato -> ValidertArbeidserfaringSkjema
+initValidertSkjema (ArbeidserfaringSkjema uvalidert) fraÅr_ sluttDato =
+    ValidertArbeidserfaringSkjema
+        { stilling = uvalidert.stilling
+        , fraMåned = uvalidert.fraMåned
+        , fraÅr = fraÅr_
+        , tilDato = sluttDato
+        , arbeidsoppgaver =
+            if (String.trim >> String.isEmpty) uvalidert.arbeidsoppgaver then
+                Nothing
+
+            else
+                Just uvalidert.arbeidsoppgaver
+        }
