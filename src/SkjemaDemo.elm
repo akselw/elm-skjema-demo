@@ -96,6 +96,8 @@ viewSkjema skjema =
         , skjema
             |> Skjema.stilling
             |> Input.input { msg = StillingOppdatert, label = "Stilling/yrke" }
+            |> Input.withErObligatorisk
+            |> Input.withFeilmelding (Skjema.feilmeldingStilling skjema)
             |> Input.toHtml
         , skjema
             |> Skjema.arbeidsoppgaver
@@ -109,6 +111,7 @@ viewSkjema skjema =
                 , onÅrChange = FraÅrOppdatert
                 , år = Skjema.fraÅr skjema
                 }
+                |> DatoInput.withFeilmeldingÅr (Skjema.feilmeldingFraÅr skjema)
                 |> DatoInput.toHtml
             , if Skjema.nåværende skjema then
                 text ""
@@ -121,6 +124,7 @@ viewSkjema skjema =
                     , onÅrChange = TilÅrOppdatert
                     , år = Skjema.tilÅr skjema
                     }
+                    |> DatoInput.withFeilmeldingÅr (Skjema.feilmeldingTilÅr skjema)
                     |> DatoInput.toHtml
             ]
         , skjema

@@ -1,6 +1,9 @@
 module ArbeidserfaringSkjema exposing
     ( ArbeidserfaringSkjema
     , arbeidsoppgaver
+    , feilmeldingFraÅr
+    , feilmeldingStilling
+    , feilmeldingTilÅr
     , fraMåned
     , fraÅr
     , init
@@ -125,3 +128,26 @@ oppdaterTilÅr tilÅr_ (ArbeidserfaringSkjema skjema) =
 toggleNåværende : ArbeidserfaringSkjema -> ArbeidserfaringSkjema
 toggleNåværende (ArbeidserfaringSkjema skjema) =
     ArbeidserfaringSkjema { skjema | nåværende = not skjema.nåværende }
+
+
+
+--- FEILMELDINGER ---
+
+
+feilmeldingStilling : ArbeidserfaringSkjema -> Maybe String
+feilmeldingStilling (ArbeidserfaringSkjema skjema) =
+    if (String.trim >> String.isEmpty) skjema.stilling then
+        Just "Vennligst full ut stilling"
+
+    else
+        Nothing
+
+
+feilmeldingFraÅr : ArbeidserfaringSkjema -> Maybe String
+feilmeldingFraÅr (ArbeidserfaringSkjema skjema) =
+    Dato.feilmeldingÅr skjema.fraÅr
+
+
+feilmeldingTilÅr : ArbeidserfaringSkjema -> Maybe String
+feilmeldingTilÅr (ArbeidserfaringSkjema skjema) =
+    Dato.feilmeldingÅr skjema.tilÅr
