@@ -110,14 +110,18 @@ viewSkjema skjema =
                 , år = Skjema.fraÅr skjema
                 }
                 |> DatoInput.toHtml
-            , DatoInput.datoInput
-                { label = "Når sluttet du i jobben?"
-                , onMånedChange = TilMånedOppdatert
-                , måned = Skjema.tilMåned skjema
-                , onÅrChange = TilÅrOppdatert
-                , år = Skjema.tilÅr skjema
-                }
-                |> DatoInput.toHtml
+            , if Skjema.nåværende skjema then
+                text ""
+
+              else
+                DatoInput.datoInput
+                    { label = "Når sluttet du i jobben?"
+                    , onMånedChange = TilMånedOppdatert
+                    , måned = Skjema.tilMåned skjema
+                    , onÅrChange = TilÅrOppdatert
+                    , år = Skjema.tilÅr skjema
+                    }
+                    |> DatoInput.toHtml
             ]
         , skjema
             |> Skjema.nåværende
