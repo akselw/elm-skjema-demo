@@ -20,8 +20,7 @@ type Model
 
 
 type alias ArbeidserfaringSkjema =
-    { arbeidsoppgaver : String
-    }
+    {}
 
 
 
@@ -29,27 +28,18 @@ type alias ArbeidserfaringSkjema =
 
 
 type Msg
-    = ArbeidsoppgaverOppdatert String
-    | Tekstmelding String
+    = Tekstmelding String
     | NoeSkjedde
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg (Model model) =
     case msg of
-        ArbeidsoppgaverOppdatert stilling ->
-            ( Model { model | skjema = oppdaterStilling stilling model.skjema }, Cmd.none )
-
         Tekstmelding string ->
             ( Model model, Cmd.none )
 
         NoeSkjedde ->
             ( Model model, Cmd.none )
-
-
-oppdaterStilling : String -> ArbeidserfaringSkjema -> ArbeidserfaringSkjema
-oppdaterStilling stilling skjema =
-    { skjema | arbeidsoppgaver = stilling }
 
 
 
@@ -74,8 +64,8 @@ viewSkjema skjema =
         [ h1 [] [ text "Arbeidserfaring" ]
         , Input.input { msg = Tekstmelding, label = "Stilling/yrke" } ""
             |> Input.toHtml
-
-        -- TODO: Her skal det være et textarea med label "Arbeidsoppgaver" som lar der oppdatere arbeidsoppgave-feltet i skjemaet
+        , Textarea.textarea { msg = Tekstmelding, label = "Arbeidsoppgaver" } ""
+            |> Textarea.toHtml
         , div [ class "datoinputrad" ]
             [ DatoInput.datoInput
                 { label = "Når startet du i jobben?"
@@ -117,4 +107,4 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model { skjema = { arbeidsoppgaver = "" } }, Cmd.none )
+    ( Model { skjema = {} }, Cmd.none )
