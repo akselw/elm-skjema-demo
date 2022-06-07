@@ -63,6 +63,7 @@ viewSkjema skjema =
     div []
         [ h1 [] [ text "Arbeidserfaring" ]
         , Input.input { msg = Tekstmelding, label = "Stilling/yrke" } ""
+            |> Input.withErObligatorisk
             |> Input.toHtml
         , Textarea.textarea { msg = Tekstmelding, label = "Arbeidsoppgaver" } ""
             |> Textarea.toHtml
